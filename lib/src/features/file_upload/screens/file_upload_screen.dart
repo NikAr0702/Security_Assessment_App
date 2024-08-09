@@ -1,21 +1,26 @@
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
-import 'package:file_picker/file_picker.dart';
 import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
+import 'package:get/get.dart';
+import 'package:flutter/material.dart';
+import 'package:security_assessment_app/src/features/file_upload/screens/report_screen.dart';
 import '../../../utils/text_extraction.dart';
-import 'file_display.dart';
+import '../../../utils/text_analyzer.dart';
 
 class FileUploadController extends GetxController {
   var selectedFileName = ''.obs;
   var isLoading = false.obs;
   var uploadStatus = ''.obs;
   var extractedText = ''.obs;
+  var analysisResult = ''.obs;
+  var analysisErrors = <String>[].obs; // List to store errors
   var selectedFile = Rxn<File>();
 
   final TextExtractionService _textExtractionService =
       Get.put(TextExtractionService());
+  final TextAnalyzerService _textAnalyzerService =
+      Get.put(TextAnalyzerService());
 
-  // Function to pick file from device storage
   void pickFile() async {
     try {
       FilePickerResult? result = await FilePicker.platform.pickFiles();
@@ -31,20 +36,35 @@ class FileUploadController extends GetxController {
     }
   }
 
-  // Function to extract text from the selected file
   void extractText() async {
     if (selectedFile.value != null) {
       final text =
           await _textExtractionService.extractText(selectedFile.value!);
       extractedText.value = text;
+
+      final analysis = _textAnalyzerService.analyzeText(text);
+      analysisResult.value = analysis['message'];
+
+      if (analysis['status'] == false) {
+        // Store the error in the analysisErrors list
+        analysisErrors.add(analysisResult.value);
+      }
+
+      Get.snackbar('Analysis Result', analysisResult.value);
     } else {
       Get.snackbar('Error', 'No file selected for text extraction');
     }
+  }
+
+  void navigateToReportScreen() {
+    Get.to(() => ReportScreen(), arguments: analysisErrors);
   }
 }
 
 class FileUploadScreen extends StatelessWidget {
   final FileUploadController controller = Get.put(FileUploadController());
+
+  FileUploadScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -58,6 +78,7 @@ class FileUploadScreen extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+              
               Obx(() => Text(
                     controller.selectedFileName.value.isEmpty
                         ? 'No file selected'
@@ -70,17 +91,22 @@ class FileUploadScreen extends StatelessWidget {
                 child: const Text('Pick File'),
               ),
               const SizedBox(height: 20),
-              Obx(() => FileDisplay(file: controller.selectedFile.value)),
-              const SizedBox(height: 20),
               ElevatedButton(
                 onPressed: controller.extractText,
                 child: const Text('Extract Text'),
               ),
               const SizedBox(height: 20),
+
               Obx(() => Text(
                     controller.extractedText.value,
                     style: const TextStyle(fontSize: 16, color: Colors.black),
                   )),
+              const SizedBox(height: 20),
+
+              ElevatedButton(
+                onPressed: controller.navigateToReportScreen,
+                child: const Text('Analysis Report'),
+              ),
             ],
           ),
         ),
