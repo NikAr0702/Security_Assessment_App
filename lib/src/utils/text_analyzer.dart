@@ -1,7 +1,6 @@
 import 'package:get/get.dart';
 
 class TextAnalyzerService extends GetxService {
-  // Function to check null safety and balance of brackets in the extracted text
   Map<String, dynamic> analyzeText(String text) {
     if (text.isEmpty) {
       return {'status': false, 'message': 'Text is empty'};

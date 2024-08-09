@@ -3,11 +3,9 @@ import 'package:get/get.dart';
 import 'package:flutter_tesseract_ocr/flutter_tesseract_ocr.dart';
 
 class TextExtractionService extends GetxService {
-  // Function to extract text from an image file using Tesseract OCR
   Future<String> extractText(File imageFile) async {
     String extractedText = '';
     try {
-      // Specify the path to the tessdata directory
       extractedText = await FlutterTesseractOcr.extractText(
         imageFile.path,
         language: 'eng',

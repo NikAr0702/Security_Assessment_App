@@ -13,7 +13,7 @@ class FileUploadController extends GetxController {
   var uploadStatus = ''.obs;
   var extractedText = ''.obs;
   var analysisResult = ''.obs;
-  var analysisErrors = <String>[].obs; // List to store errors
+  var analysisErrors = <String>[].obs;
   var selectedFile = Rxn<File>();
 
   final TextExtractionService _textExtractionService =
@@ -46,7 +46,6 @@ class FileUploadController extends GetxController {
       analysisResult.value = analysis['message'];
 
       if (analysis['status'] == false) {
-        // Store the error in the analysisErrors list
         analysisErrors.add(analysisResult.value);
       }
 
@@ -57,7 +56,7 @@ class FileUploadController extends GetxController {
   }
 
   void navigateToReportScreen() {
-    Get.to(() => ReportScreen(), arguments: analysisErrors);
+    Get.to(() => const ReportScreen(), arguments: analysisErrors);
   }
 }
 
@@ -75,39 +74,38 @@ class FileUploadScreen extends StatelessWidget {
       body: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              
-              Obx(() => Text(
-                    controller.selectedFileName.value.isEmpty
-                        ? 'No file selected'
-                        : 'Selected file: ${controller.selectedFileName.value}',
-                    style: const TextStyle(fontSize: 16),
-                  )),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: controller.pickFile,
-                child: const Text('Pick File'),
-              ),
-              const SizedBox(height: 20),
-              ElevatedButton(
-                onPressed: controller.extractText,
-                child: const Text('Extract Text'),
-              ),
-              const SizedBox(height: 20),
-
-              Obx(() => Text(
-                    controller.extractedText.value,
-                    style: const TextStyle(fontSize: 16, color: Colors.black),
-                  )),
-              const SizedBox(height: 20),
-
-              ElevatedButton(
-                onPressed: controller.navigateToReportScreen,
-                child: const Text('Analysis Report'),
-              ),
-            ],
+          child: Center(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Obx(() => Text(
+                      controller.selectedFileName.value.isEmpty
+                          ? 'No file selected'
+                          : 'Selected file: ${controller.selectedFileName.value}',
+                      style: const TextStyle(fontSize: 16),
+                    )),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: controller.pickFile,
+                  child: const Text('Pick File'),
+                ),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: controller.extractText,
+                  child: const Text('Extract Text'),
+                ),
+                const SizedBox(height: 20),
+                Obx(() => Text(
+                      controller.extractedText.value,
+                      style: const TextStyle(fontSize: 16, color: Colors.black),
+                    )),
+                const SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: controller.navigateToReportScreen,
+                  child: const Text('Analysis Report'),
+                ),
+              ],
+            ),
           ),
         ),
       ),
